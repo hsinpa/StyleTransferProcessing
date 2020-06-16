@@ -22,7 +22,7 @@ class Generator:
         x = _inverted_residual_block(x, 32, (3, 3), t=6, alpha=alpha, strides=2, n=3)
 
         encode_layer.append(x)
-        x = _inverted_residual_block(x, 64, (3, 3), t=6, alpha=alpha, strides=2, n=3)
+        x = _inverted_residual_block(x, 64, (3, 3), t=6, alpha=alpha, strides=2, n=4)
 
         x = _inverted_residual_block(x, 96, (3, 3), t=6, alpha=alpha, strides=1, n=3)
 
@@ -35,7 +35,7 @@ class Generator:
 
     def build_decoder(self, x, encode_layer):
         alpha = 1
-        denseSetup = [(4, 160, 96), (6, 64, 32), (10, 28, 24), (4, 18, 16)]
+        denseSetup = [(6, 160, 96), (8, 64, 32), (12, 28, 24), (6, 18, 16)]
         denseSetCount = len(denseSetup)
         for i in range(denseSetCount):
             r, train_f, trans_f = denseSetup[i]

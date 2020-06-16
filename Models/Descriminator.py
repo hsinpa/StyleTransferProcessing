@@ -9,7 +9,7 @@ from Models.Modules import _inverted_residual_block, _conv_block, _bottleneck, _
 
 class Descriminator:
 
-    def Build(self, input_shape, k, alpha=1.0, data_format='channels_last'):
+    def Build(self, input_shape, alpha=1.0, data_format='channels_last'):
         """MobileNetv2
         This function defines a MobileNetv2 architectures.
         # Arguments
@@ -28,20 +28,25 @@ class Descriminator:
         x = _conv_block(inputs, first_filters, (3, 3), strides=(2, 2))
         x = _inverted_residual_block(x, 16, (3, 3), t=1, alpha=alpha, strides=1, n=1)
 
-        encode_layer.append(x)
         x = _inverted_residual_block(x, 24, (3, 3), t=6, alpha=alpha, strides=2, n=2)
 
-        encode_layer.append(x)
         x = _inverted_residual_block(x, 32, (3, 3), t=6, alpha=alpha, strides=2, n=3)
 
-        encode_layer.append(x)
-        x = _inverted_residual_block(x, 64, (3, 3), t=6, alpha=alpha, strides=2, n=3)
+        x = _inverted_residual_block(x, 64, (3, 3), t=6, alpha=alpha, strides=1, n=3)
 
-        x = _inverted_residual_block(x, 96, (3, 3), t=6, alpha=alpha, strides=1, n=3)
+        x = _inverted_residual_block(x, 96, (3, 3), t=6, alpha=alpha, strides=2, n=4)
 
-        encode_layer.append(x)
-        x = _inverted_residual_block(x, 160, (3, 3), t=6, alpha=alpha, strides=2, n=2)
+        x = _inverted_residual_block(x, 160, (3, 3), t=6, alpha=alpha, strides=1, n=3)
 
+        x = Conv2D(1, kernel_size=3, strides=1, padding='same')(x)
 
+        return Model(inputs, x)
 
-        pass
+if __name__ == '__main__':
+    model = Descriminator()
+    m = model.Build((128, 128, 3), data_format='channels_last')
+
+    print(m.summary())
+
+    # m.save("../save_model/", save_format="tf")
+

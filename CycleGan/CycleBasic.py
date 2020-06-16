@@ -14,7 +14,8 @@ from CycleGan.DataLoader import DataLoader
 import numpy as np
 import os
 import tensorflow as tf
-from Models.Generator import  Generator
+from Models.Generator import Generator
+from Models.Descriminator import Descriminator
 
 class CycleGAN():
 
@@ -48,8 +49,10 @@ class CycleGAN():
         optimizer = Adam(0.0002, 0.5)
 
         # Build and compile the discriminators
-        self.d_A = self.build_discriminator()
-        self.d_B = self.build_discriminator()
+        descriminatorBuilder = Descriminator()
+
+        self.d_A = descriminatorBuilder.Build(self.img_shape)
+        self.d_B = descriminatorBuilder.Build(self.img_shape)
         self.d_A.compile(loss=self.lse,
                          optimizer=optimizer,
                          metrics=['accuracy'])
@@ -135,39 +138,6 @@ class CycleGAN():
         loss = tf.reduce_mean(tf.abs(y_pred - y_true))
         return loss
 
-
-    def build_generator(self):
-        """U-Net Generator"""
-        # Image input
-        d0 = Input(shape=self.img_shape)
-
-        # Downsampling
-        d1 = self.conv2d(d0, self.gf)
-        d2 = self.conv2d(d1, self.gf * 2)
-        d3 = self.conv2d(d2, self.gf * 4)
-        d4 = self.conv2d(d3, self.gf * 8)
-
-        # Upsampling
-        u1 = self.deconv2d(d4, d3, self.gf * 4)
-        u2 = self.deconv2d(u1, d2, self.gf * 2)
-        u3 = self.deconv2d(u2, d1, self.gf)
-
-        u4 = UpSampling2D(size=2)(u3)
-        output_img = Conv2D(self.channels, kernel_size=4, strides=1, padding='same', activation='tanh')(u4)
-
-        return Model(d0, output_img)
-
-    def build_discriminator(self):
-        img = Input(shape=self.img_shape)
-
-        d1 = self.conv2d(img, self.df, normalization=False)
-        d2 = self.conv2d(d1, self.df * 2)
-        d3 = self.conv2d(d2, self.df * 4)
-        d4 = self.conv2d(d3, self.df * 8)
-
-        validity = Conv2D(1, kernel_size=4, strides=1, padding='same')(d4)
-        return Model(img, validity)
-
     def sample_images(self, epoch, batch_i):
       r, c = 2, 3
 
@@ -241,5 +211,5 @@ class CycleGAN():
 
 
 cycle_gan = CycleGAN()
-cycle_gan.train(epochs=100, batch_size=1, sample_interval=10)
+cycle_gan.train(epochs=100, batch_size=8, sample_interval=10)
 
