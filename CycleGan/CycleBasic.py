@@ -36,8 +36,6 @@ class CycleGAN():
         patch = int(self.img_rows / 2 ** 4)
         self.disc_patch = (patch, patch, 1)
 
-        print(self.disc_patch)
-
         # Number of filters in the first layer of G and D
         self.gf = 32
         self.df = 64
@@ -60,7 +58,6 @@ class CycleGAN():
                          optimizer=optimizer,
                          metrics=['accuracy'])
 
-        self.d_B.summary()
 
         # -------------------------
         # Construct Computational
@@ -166,6 +163,8 @@ class CycleGAN():
               axs[i, j].axis('off')
               cnt += 1
       fig.savefig("images/%s/%d_%d.png" % (self.dataset_name, epoch, batch_i))
+      fig.clf()
+      plt.close(fig)
       # plt.show()
 
     def train(self, epochs, batch_size=1, sample_interval=50):
@@ -208,6 +207,7 @@ class CycleGAN():
                 # If at save interval => plot the generated image samples
                 if batch_i % sample_interval == 0:
                     self.sample_images(epoch, batch_i)
+
 
 
 cycle_gan = CycleGAN()
